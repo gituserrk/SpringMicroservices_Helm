@@ -1,0 +1,10 @@
+﻿apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: patient-appointment-service-config
+  namespace: healthcare
+data:
+  DB_HOST: appointment-db             # Kubernetes DNS name of the appointment-db Service
+  DB_PORT: "3306"
+  DB_NAME: appointment_db
+  PATIENT_SERVICE_URL: http://patient-core-service:8080   # K8s DNS — resolves to patient-core-service ClusterIP

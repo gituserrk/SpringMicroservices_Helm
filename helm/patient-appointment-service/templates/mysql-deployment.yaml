@@ -1,0 +1,61 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "patient-appointment-service.mysqlServiceName" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ include "patient-appointment-service.mysqlServiceName" . }}
+    {{- include "patient-appointment-service.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "patient-appointment-service.mysqlServiceName" . }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: {{ include "patient-appointment-service.mysqlServiceName" . }}
+    spec:
+      containers:
+        - name: mysql
+          image: {{ .Values.mysql.image }}
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "patient-appointment-service.mysqlServiceName" . }}-secret
+                  key: mysql-root-password
+            - name: MYSQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "patient-appointment-service.mysqlServiceName" . }}-secret
+                  key: mysql-database
+          volumeMounts:
+            - name: mysql-storage
+              mountPath: /var/lib/mysql
+          readinessProbe:
+            exec:
+              command: ["mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 6
+          livenessProbe:
+            exec:
+              command: ["mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+            initialDelaySeconds: 60
+            periodSeconds: 20
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+      volumes:
+        - name: mysql-storage
+          persistentVolumeClaim:
+            claimName: {{ include "patient-appointment-service.mysqlServiceName" . }}-pvc

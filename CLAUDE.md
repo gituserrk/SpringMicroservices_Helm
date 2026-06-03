@@ -1,4 +1,4 @@
-# CREATE Prompt – Healthcare Microservices with Spring Boot, Kubernetes, and Helm
+﻿# CREATE Prompt – Healthcare Microservices with Spring Boot, Kubernetes, and Helm
 
 ## C – Context
 
@@ -10,10 +10,10 @@ The solution should be simple enough to understand in a single session while sti
 
 The application consists of two independently deployable microservices:
 
-1. Patient Service
-2. Appointment Service
+1. PatientCore Service
+2. PatientAppointment Service
 
-The Appointment Service must communicate with the Patient Service before creating appointments.
+The PatientAppointment Service must communicate with the PatientCore Service before creating appointments.
 
 The application will be deployed locally on Kubernetes (Minikube or Kind) and packaged using Helm.
 
@@ -36,7 +36,7 @@ Design and generate a production-quality reference implementation suitable for l
 
 ## E – Expectations
 
-### Patient Service
+### PatientCore Service
 
 Responsibilities:
 
@@ -65,7 +65,7 @@ PostgreSQL
 
 ---
 
-### Appointment Service
+### PatientAppointment Service
 
 Responsibilities:
 
@@ -89,7 +89,7 @@ Appointment Entity:
 
 Before creating an appointment:
 
-* Validate the patient exists by calling Patient Service.
+* Validate the patient exists by calling PatientCore Service.
 
 Use OpenFeign for inter-service communication.
 
@@ -132,14 +132,14 @@ Provide:
 
 ### Communication
 
-Appointment Service → Patient Service
+PatientAppointment Service → PatientCore Service
 
 Use Kubernetes DNS-based service discovery.
 
 Example:
 
 ```text
-http://patient-service:8080
+http://patient-core-service:8080
 ```
 
 Do not use Eureka.
@@ -153,9 +153,9 @@ Do not use Config Server.
 Generate an architecture diagram showing:
 
 Client
-→ Appointment Service
-→ Patient Service
-→ PostgreSQL Databases
+→ PatientAppointment Service
+→ PatientCore Service
+→ MySQL Databases
 
 Also show Kubernetes Services and Pods.
 
@@ -181,7 +181,7 @@ Wait for approval.
 
 ### Phase 2
 
-Generate complete Patient Service.
+Generate complete PatientCore Service.
 
 Include:
 
@@ -200,7 +200,7 @@ Wait for approval.
 
 ### Phase 3
 
-Generate complete Appointment Service.
+Generate complete PatientAppointment Service.
 
 Include:
 
@@ -223,8 +223,8 @@ Generate Docker configuration.
 
 Include:
 
-* Dockerfile for Patient Service
-* Dockerfile for Appointment Service
+* Dockerfile for PatientCore Service
+* Dockerfile for PatientAppointment Service
 * Docker Compose for local execution
 
 Wait for approval.
@@ -242,8 +242,8 @@ Include:
 * Services
 * ConfigMaps
 * Secrets
-* PostgreSQL Deployments
-* PostgreSQL Services
+* MySQL Deployments
+* MySQL Services
 
 Provide kubectl commands for deployment.
 
@@ -257,8 +257,8 @@ Generate Helm charts.
 
 For:
 
-* Patient Service
-* Appointment Service
+* PatientCore Service
+* PatientAppointment Service
 
 Include:
 
@@ -289,7 +289,7 @@ Demonstrate:
 1. Create Patient
 2. Retrieve Patient
 3. Create Appointment
-4. Appointment Service calling Patient Service
+4. PatientAppointment Service calling PatientCore Service
 5. Kubernetes deployment verification
 6. Helm deployment verification
 

@@ -1,12 +1,12 @@
-# API Testing Guide — Healthcare Microservices Demo
+﻿# API Testing Guide — Healthcare Microservices Demo
 
 ## Base URLs
 
-| Environment     | Patient Service           | Appointment Service       |
+| Environment     | PatientCore Service           | Appointment Service       |
 |-----------------|---------------------------|---------------------------|
 | Docker Compose  | http://localhost:8080     | http://localhost:8081     |
 | Kubernetes (pf) | http://localhost:8080     | http://localhost:8081     |
-| Minikube NodePort | http://localhost:8080   | `minikube service appointment-service -n healthcare` |
+| Minikube NodePort | http://localhost:8080   | `minikube service patient-appointment-service -n healthcare` |
 
 **Swagger UI**
 - Patient:     http://localhost:8080/swagger-ui.html
@@ -181,7 +181,7 @@ Expected — status changes to CANCELLED, data is retained:
 
 ---
 
-## Scenario 4 — Appointment Service Calling Patient Service
+## Scenario 4 — Appointment Service Calling PatientCore Service
 
 This demonstrates the inter-service Feign call and patient validation.
 
@@ -190,7 +190,7 @@ This demonstrates the inter-service Feign call and patient validation.
 # First verify patient 1 exists
 curl -s http://localhost:8080/api/patients/1 | jq .
 
-# Create appointment — Appointment Service calls Patient Service internally
+# Create appointment — Appointment Service calls PatientCore Service internally
 curl -s -X POST http://localhost:8081/api/appointments \
   -H "Content-Type: application/json" \
   -d '{
@@ -223,7 +223,7 @@ Expected (404):
 }
 ```
 
-This confirms Appointment Service → Patient Service → 404 → mapped to PatientNotFoundException.
+This confirms Appointment Service → PatientCore Service → 404 → mapped to PatientNotFoundException.
 
 ---
 
@@ -239,8 +239,8 @@ kubectl get pods -n healthcare
 # NAME                                    READY   STATUS    RESTARTS
 # patient-db-xxx                          1/1     Running   0
 # appointment-db-xxx                      1/1     Running   0
-# patient-service-xxx                     1/1     Running   0
-# appointment-service-xxx                 1/1     Running   0
+# patient-core-service-xxx                     1/1     Running   0
+# patient-appointment-service-xxx                 1/1     Running   0
 
 # All services exist
 kubectl get services -n healthcare
@@ -249,15 +249,15 @@ kubectl get services -n healthcare
 kubectl get pvc -n healthcare
 
 # Check readiness/liveness probes
-kubectl describe pod -l app=patient-service     -n healthcare | grep -A5 "Liveness\|Readiness"
-kubectl describe pod -l app=appointment-service -n healthcare | grep -A5 "Liveness\|Readiness"
+kubectl describe pod -l app=patient-core-service     -n healthcare | grep -A5 "Liveness\|Readiness"
+kubectl describe pod -l app=patient-appointment-service -n healthcare | grep -A5 "Liveness\|Readiness"
 
 # View application logs
-kubectl logs -l app=patient-service     -n healthcare --tail=50
-kubectl logs -l app=appointment-service -n healthcare --tail=50
+kubectl logs -l app=patient-core-service     -n healthcare --tail=50
+kubectl logs -l app=patient-appointment-service -n healthcare --tail=50
 
 # Health endpoints via port-forward
-kubectl port-forward svc/patient-service 8080:8080 -n healthcare &
+kubectl port-forward svc/patient-core-service 8080:8080 -n healthcare &
 curl -s http://localhost:8080/actuator/health | jq .
 
 # Liveness / Readiness probes
@@ -290,8 +290,8 @@ helm list -n healthcare
 
 # Expected:
 # NAME                   NAMESPACE    STATUS    CHART
-# patient-release        healthcare   deployed  patient-service-1.0.0
-# appointment-release    healthcare   deployed  appointment-service-1.0.0
+# patient-release        healthcare   deployed  patient-core-service-1.0.0
+# appointment-release    healthcare   deployed  patient-appointment-service-1.0.0
 
 # Inspect computed values
 helm get values patient-release     -n healthcare
@@ -301,7 +301,7 @@ helm get values appointment-release -n healthcare
 helm get manifest patient-release -n healthcare
 
 # Dry-run to verify templates before upgrade
-helm upgrade patient-release helm/patient-service -n healthcare --dry-run --debug
+helm upgrade patient-release helm/patient-core-service -n healthcare --dry-run --debug
 
 # Verify release history
 helm history patient-release -n healthcare

@@ -1,13 +1,13 @@
-version: '3.8'
+﻿version: '3.8'
 
 # Healthcare Microservices — local Docker Compose stack
-# Starts: patient-db, appointment-db, patient-service, appointment-service
+# Starts: patient-db, appointment-db, patient-core-service, patient-patient-appointment-service
 #
 # Usage:
 #   docker compose up --build          # build images and start all services
 #   docker compose up -d               # start in detached mode (after first build)
 #   docker compose down -v             # stop and remove volumes
-#   docker compose logs -f patient-service
+#   docker compose logs -f patient-core-service
 
 services:
 
@@ -47,12 +47,12 @@ services:
       retries: 10
       start_period: 30s
 
-  # ── Patient Service ────────────────────────────────────────────────────────
-  patient-service:
+  # ── PatientCore Service ────────────────────────────────────────────────────────
+  patient-core-service:
     build:
       context: .                              # root — Dockerfile copies sub-module sources
-      dockerfile: patient-service/Dockerfile
-    container_name: patient-service
+      dockerfile: patient-core-service/Dockerfile
+    container_name: patient-core-service
     environment:
       DB_HOST: patient-db
       DB_PORT: 3306
@@ -72,11 +72,11 @@ services:
       start_period: 60s
 
   # ── Appointment Service ────────────────────────────────────────────────────
-  appointment-service:
+  patient-patient-appointment-service:
     build:
       context: .
-      dockerfile: appointment-service/Dockerfile
-    container_name: appointment-service
+      dockerfile: patient-patient-appointment-service/Dockerfile
+    container_name: patient-patient-appointment-service
     environment:
       DB_HOST: appointment-db
       DB_PORT: 3306
@@ -84,13 +84,13 @@ services:
       DB_USER: root
       DB_PASSWORD: root
       # Override the default Kubernetes DNS name with the Docker Compose service name
-      PATIENT_SERVICE_URL: http://patient-service:8080
+      PATIENT_SERVICE_URL: http://patient-core-service:8080
     ports:
       - "8081:8081"
     depends_on:
       appointment-db:
         condition: service_healthy
-      patient-service:
+      patient-core-service:
         condition: service_healthy
 
 volumes:

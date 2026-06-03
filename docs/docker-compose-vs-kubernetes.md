@@ -1,4 +1,4 @@
-# Docker Compose vs Kubernetes — What's the Difference?
+﻿# Docker Compose vs Kubernetes — What's the Difference?
 
 A quick reference for understanding when to use each and how they relate to this project.
 
@@ -42,9 +42,9 @@ The key insight: **the application code and Docker images are identical in both 
 Only the runtime environment changes.
 
 ```
-patient-service:latest  ─┬─►  Docker Compose  (docker-compose.yml)
-                          └─►  Kubernetes      (k8s/patient-service/deployment.yaml)
-                          └─►  Helm            (helm/patient-service/templates/deployment.yaml)
+patient-core-service:latest  ─┬─►  Docker Compose  (docker-compose.yml)
+                          └─►  Kubernetes      (k8s/patient-core-service/deployment.yaml)
+                          └─►  Helm            (helm/patient-core-service/templates/deployment.yaml)
 ```
 
 This means you can develop and test locally with Docker Compose, then deploy the exact same image to Kubernetes — no code changes required.
@@ -69,14 +69,14 @@ kubectl apply -f k8s/patient-db/
 kubectl apply -f k8s/appointment-db/
 kubectl wait --for=condition=ready pod -l app=patient-db     -n healthcare --timeout=120s
 kubectl wait --for=condition=ready pod -l app=appointment-db -n healthcare --timeout=120s
-kubectl apply -f k8s/patient-service/
-kubectl apply -f k8s/appointment-service/
+kubectl apply -f k8s/patient-core-service/
+kubectl apply -f k8s/patient-appointment-service/
 kubectl get all -n healthcare
 
 # ── Step 4: Show Helm (teardown K8s first) ────────────────────────────────
 kubectl delete namespace healthcare
-helm install patient-release     helm/patient-service     -n healthcare --create-namespace
-helm install appointment-release helm/appointment-service -n healthcare
+helm install patient-release     helm/patient-core-service     -n healthcare --create-namespace
+helm install appointment-release helm/patient-appointment-service -n healthcare
 helm list -n healthcare
 ```
 

@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: patient-service-config
-  namespace: healthcare
-data:
-  DB_HOST: patient-db       # Kubernetes DNS name of the patient-db Service
-  DB_PORT: "3306"
-  DB_NAME: patient_db

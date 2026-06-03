@@ -1,14 +1,14 @@
 {
   "info": {
     "name": "Healthcare Microservices — TT6 Demo",
-    "description": "Complete API collection for Patient Service and Appointment Service demo.\nImport this file into Postman: File → Import → Upload Files.\nSet the collection variables patient_url and appointment_url before running.",
+    "description": "Complete API collection for PatientCore Service and Appointment Service demo.\nImport this file into Postman: File → Import → Upload Files.\nSet the collection variables patient_url and appointment_url before running.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
     {
       "key": "patient_url",
       "value": "http://localhost:8080",
-      "description": "Patient Service base URL"
+      "description": "PatientCore Service base URL"
     },
     {
       "key": "appointment_url",
@@ -18,7 +18,7 @@
   ],
   "item": [
     {
-      "name": "Patient Service",
+      "name": "PatientCore Service",
       "item": [
         {
           "name": "Create Patient",
@@ -97,21 +97,21 @@
           }
         },
         {
-          "name": "Health — Patient Service",
+          "name": "Health — PatientCore Service",
           "request": {
             "method": "GET",
             "url": { "raw": "{{patient_url}}/actuator/health", "host": ["{{patient_url}}"], "path": ["actuator", "health"] }
           }
         },
         {
-          "name": "Liveness — Patient Service",
+          "name": "Liveness — PatientCore Service",
           "request": {
             "method": "GET",
             "url": { "raw": "{{patient_url}}/actuator/health/liveness", "host": ["{{patient_url}}"], "path": ["actuator", "health", "liveness"] }
           }
         },
         {
-          "name": "Readiness — Patient Service",
+          "name": "Readiness — PatientCore Service",
           "request": {
             "method": "GET",
             "url": { "raw": "{{patient_url}}/actuator/health/readiness", "host": ["{{patient_url}}"], "path": ["actuator", "health", "readiness"] }
@@ -123,7 +123,7 @@
       "name": "Appointment Service",
       "item": [
         {
-          "name": "Create Appointment (triggers Feign call to Patient Service)",
+          "name": "Create Appointment (triggers Feign call to PatientCore Service)",
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],

@@ -1,4 +1,4 @@
-# TT6 — Post-Session Summary
+﻿# TT6 — Post-Session Summary
 ### Healthcare Microservices with Spring Boot, Kubernetes & Helm
 
 ---
@@ -25,7 +25,7 @@
 
 We built a **cloud-native healthcare application** from scratch consisting of two microservices:
 
-### Patient Service (port 8080)
+### PatientCore Service (port 8080)
 | Endpoint | Method | Description |
 |---|---|---|
 | `/api/patients` | POST | Create a new patient |
@@ -48,7 +48,7 @@ We built a **cloud-native healthcare application** from scratch consisting of tw
 | Phase | Deliverable | Files |
 |---|---|---|
 | 1 | Architecture, diagrams, DB design, folder structure | — |
-| 2 | Complete Patient Service | 18 files |
+| 2 | Complete PatientCore Service | 18 files |
 | 3 | Complete Appointment Service + OpenFeign | 21 files |
 | 4 | Dockerfiles + Docker Compose | 4 files |
 | 5 | Kubernetes manifests | 17 files |
@@ -83,8 +83,8 @@ We built a **cloud-native healthcare application** from scratch consisting of tw
 ┌─────────────────────────────────────────────────────────────┐
 │  1. Docker Compose (local)                                  │
 │     docker compose up --build                               │
-│     → patient-service:  http://localhost:8080               │
-│     → appointment-service: http://localhost:8081            │
+│     → patient-core-service:  http://localhost:8080               │
+│     → patient-appointment-service: http://localhost:8081            │
 │     Best for: quick local testing, demos without a cluster  │
 └─────────────────────────────────────────────────────────────┘
 
@@ -98,8 +98,8 @@ We built a **cloud-native healthcare application** from scratch consisting of tw
 
 ┌─────────────────────────────────────────────────────────────┐
 │  3. Kubernetes — Helm Charts                                │
-│     helm install patient-release helm/patient-service       │
-│     helm install appointment-release helm/appointment-service│
+│     helm install patient-release helm/patient-core-service       │
+│     helm install appointment-release helm/patient-appointment-service│
 │     → Demonstrates: templating, release management,         │
 │       values overrides, rollback, upgrade                   │
 └─────────────────────────────────────────────────────────────┘
@@ -129,23 +129,23 @@ Traditional Spring stacks often add **Eureka** as a service registry — a dedic
 
 ✅ With Kubernetes DNS:
    Create a Kubernetes Service → CoreDNS auto-registers it
-   Service B calls "patient-service:8080" → CoreDNS resolves → done
+   Service B calls "patient-core-service:8080" → CoreDNS resolves → done
    (zero extra infrastructure — built into every K8s cluster)
 ```
 
 **Kubernetes DNS resolution chain:**
 ```
-appointment-service Pod
-  └─► "patient-service" resolves via CoreDNS
-        └─► patient-service.healthcare.svc.cluster.local
-              └─► ClusterIP of the patient-service K8s Service
-                    └─► one of the healthy patient-service Pods
+patient-appointment-service Pod
+  └─► "patient-core-service" resolves via CoreDNS
+        └─► patient-core-service.healthcare.svc.cluster.local
+              └─► ClusterIP of the patient-core-service K8s Service
+                    └─► one of the healthy patient-core-service Pods
 ```
 
 ### Why synchronous (OpenFeign) instead of async (Kafka)?
 
 ```
-Appointment Service                     Patient Service
+Appointment Service                     PatientCore Service
        │                                       │
        │── GET /api/patients/{id} ────────────►│
        │◄── 200 OK / 404 Not Found ────────────│
@@ -169,19 +169,19 @@ Appointment Service                     Patient Service
 
 ### How the two services communicate (the crucial mechanism)
 
-The Appointment Service calls the Patient Service using **OpenFeign** — a declarative HTTP client. The entire integration is one interface:
+The Appointment Service calls the PatientCore Service using **OpenFeign** — a declarative HTTP client. The entire integration is one interface:
 
 ```java
-@FeignClient(name = "patient-service", url = "${patient.service.url:http://patient-service:8080}")
+@FeignClient(name = "patient-core-service", url = "${patient.service.url:http://patient-core-service:8080}")
 public interface PatientClient {
     @GetMapping("/api/patients/{id}")
     PatientDTO getPatientById(@PathVariable("id") Long id);
 }
 ```
 
-The URL `http://patient-service:8080` is a **Kubernetes DNS name**, not a hardcoded IP. When Kubernetes creates a `Service` named `patient-service`, CoreDNS automatically creates a DNS record for it. OpenFeign resolves that name at call time — no registry, no client-side load balancer configuration required.
+The URL `http://patient-core-service:8080` is a **Kubernetes DNS name**, not a hardcoded IP. When Kubernetes creates a `Service` named `patient-core-service`, CoreDNS automatically creates a DNS record for it. OpenFeign resolves that name at call time — no registry, no client-side load balancer configuration required.
 
-The same env variable (`PATIENT_SERVICE_URL`) is overridden to `http://patient-service:8080` in Docker Compose, where Docker Compose's internal DNS resolves container names identically.
+The same env variable (`PATIENT_SERVICE_URL`) is overridden to `http://patient-core-service:8080` in Docker Compose, where Docker Compose's internal DNS resolves container names identically.
 
 ### How Helm makes deployment repeatable
 
@@ -190,15 +190,15 @@ Each Helm chart bundles the Spring Boot app **and** its MySQL database:
 ```bash
 # One command installs: app deployment + app service + MySQL deployment +
 #                       MySQL service + MySQL PVC + ConfigMap + Secrets
-helm install patient-release helm/patient-service -n healthcare
+helm install patient-release helm/patient-core-service -n healthcare
 
 # Override any value without touching chart files
-helm install patient-release helm/patient-service -n healthcare \
+helm install patient-release helm/patient-core-service -n healthcare \
   --set mysql.rootPassword=securepassword \
   --set replicaCount=3
 
 # Upgrade after a change
-helm upgrade patient-release helm/patient-service -n healthcare
+helm upgrade patient-release helm/patient-core-service -n healthcare
 
 # Roll back if something goes wrong
 helm rollback patient-release 1 -n healthcare
@@ -242,7 +242,7 @@ The difference matters: a pod that is alive but not ready (e.g. still connecting
 
 | Resource | Location |
 |---|---|
-| Source code | `patient-service/` · `appointment-service/` |
+| Source code | `patient-core-service/` · `patient-appointment-service/` |
 | K8s manifests | `k8s/` |
 | Helm charts | `helm/` |
 | Docker Compose | `docker-compose.yml` |
