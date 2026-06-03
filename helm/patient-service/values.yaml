@@ -1,0 +1,46 @@
+# Patient Service — Helm values
+# Override any value with: helm install ... --set key=value
+# or: helm install ... -f custom-values.yaml
+
+replicaCount: 1
+
+image:
+  repository: patient-service
+  tag: latest
+  # Never: use image built directly into Minikube's Docker daemon (no registry pull).
+  # Change to Always when pulling from a container registry.
+  pullPolicy: Never
+
+# Fix the service name so Kubernetes DNS resolves "patient-service" consistently.
+# appointment-service relies on this name for Feign calls.
+fullnameOverride: patient-service
+
+service:
+  type: ClusterIP   # Internal only — not exposed outside the cluster
+  port: 8080
+
+mysql:
+  image: "mysql:8.0"
+  port: 3306
+  database: patient_db
+  user: root
+  rootPassword: root   # Override in production: --set mysql.rootPassword=securepassword
+  storage: 1Gi
+
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "250m"
+  limits:
+    memory: "512Mi"
+    cpu: "500m"
+
+probes:
+  readiness:
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    failureThreshold: 5
+  liveness:
+    initialDelaySeconds: 60
+    periodSeconds: 15
+    failureThreshold: 3

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: patient-db
+  namespace: healthcare
+  labels:
+    app: patient-db
+spec:
+  selector:
+    app: patient-db
+  ports:
+    - port: 3306
+      targetPort: 3306
+      protocol: TCP
+  type: ClusterIP   # Internal only — databases must never be exposed outside the cluster

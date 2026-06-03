@@ -1,0 +1,225 @@
+{
+  "info": {
+    "name": "Healthcare Microservices — TT6 Demo",
+    "description": "Complete API collection for Patient Service and Appointment Service demo.\nImport this file into Postman: File → Import → Upload Files.\nSet the collection variables patient_url and appointment_url before running.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "patient_url",
+      "value": "http://localhost:8080",
+      "description": "Patient Service base URL"
+    },
+    {
+      "key": "appointment_url",
+      "value": "http://localhost:8081",
+      "description": "Appointment Service base URL"
+    }
+  ],
+  "item": [
+    {
+      "name": "Patient Service",
+      "item": [
+        {
+          "name": "Create Patient",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{patient_url}}/api/patients", "host": ["{{patient_url}}"], "path": ["api", "patients"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"age\": 35,\n  \"mobile\": \"9876543210\",\n  \"email\": \"john@example.com\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Create Patient (Jane Smith)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{patient_url}}/api/patients", "host": ["{{patient_url}}"], "path": ["api", "patients"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Jane\",\n  \"lastName\": \"Smith\",\n  \"age\": 28,\n  \"mobile\": \"9123456780\",\n  \"email\": \"jane@example.com\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Patients",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{patient_url}}/api/patients", "host": ["{{patient_url}}"], "path": ["api", "patients"] }
+          }
+        },
+        {
+          "name": "Get Patient by ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{patient_url}}/api/patients/1", "host": ["{{patient_url}}"], "path": ["api", "patients", "1"] }
+          }
+        },
+        {
+          "name": "Get Patient — Not Found (404)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{patient_url}}/api/patients/999", "host": ["{{patient_url}}"], "path": ["api", "patients", "999"] }
+          }
+        },
+        {
+          "name": "Update Patient",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{patient_url}}/api/patients/1", "host": ["{{patient_url}}"], "path": ["api", "patients", "1"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"age\": 36,\n  \"mobile\": \"9876543210\",\n  \"email\": \"john.doe@example.com\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Patient",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{patient_url}}/api/patients/2", "host": ["{{patient_url}}"], "path": ["api", "patients", "2"] }
+          }
+        },
+        {
+          "name": "Create Patient — Validation Error (400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{patient_url}}/api/patients", "host": ["{{patient_url}}"], "path": ["api", "patients"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"\",\n  \"lastName\": \"Doe\",\n  \"age\": -5,\n  \"mobile\": \"abc\",\n  \"email\": \"not-an-email\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Health — Patient Service",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{patient_url}}/actuator/health", "host": ["{{patient_url}}"], "path": ["actuator", "health"] }
+          }
+        },
+        {
+          "name": "Liveness — Patient Service",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{patient_url}}/actuator/health/liveness", "host": ["{{patient_url}}"], "path": ["actuator", "health", "liveness"] }
+          }
+        },
+        {
+          "name": "Readiness — Patient Service",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{patient_url}}/actuator/health/readiness", "host": ["{{patient_url}}"], "path": ["actuator", "health", "readiness"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Appointment Service",
+      "item": [
+        {
+          "name": "Create Appointment (triggers Feign call to Patient Service)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{appointment_url}}/api/appointments", "host": ["{{appointment_url}}"], "path": ["api", "appointments"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patientId\": 1,\n  \"doctorName\": \"Dr. Smith\",\n  \"appointmentDate\": \"2026-12-15\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Create Appointment — Patient Not Found (404 from Feign)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{appointment_url}}/api/appointments", "host": ["{{appointment_url}}"], "path": ["api", "appointments"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patientId\": 9999,\n  \"doctorName\": \"Dr. Smith\",\n  \"appointmentDate\": \"2026-12-15\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Create Appointment — Validation Error (400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{appointment_url}}/api/appointments", "host": ["{{appointment_url}}"], "path": ["api", "appointments"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patientId\": null,\n  \"doctorName\": \"\",\n  \"appointmentDate\": null\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Appointments",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{appointment_url}}/api/appointments", "host": ["{{appointment_url}}"], "path": ["api", "appointments"] }
+          }
+        },
+        {
+          "name": "Get Appointment by ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{appointment_url}}/api/appointments/1", "host": ["{{appointment_url}}"], "path": ["api", "appointments", "1"] }
+          }
+        },
+        {
+          "name": "Get Appointment — Not Found (404)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{appointment_url}}/api/appointments/999", "host": ["{{appointment_url}}"], "path": ["api", "appointments", "999"] }
+          }
+        },
+        {
+          "name": "Update Appointment",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{appointment_url}}/api/appointments/1", "host": ["{{appointment_url}}"], "path": ["api", "appointments", "1"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patientId\": 1,\n  \"doctorName\": \"Dr. Jones\",\n  \"appointmentDate\": \"2026-12-20\",\n  \"status\": \"COMPLETED\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Cancel Appointment (soft cancel → CANCELLED)",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{appointment_url}}/api/appointments/1", "host": ["{{appointment_url}}"], "path": ["api", "appointments", "1"] }
+          }
+        },
+        {
+          "name": "Health — Appointment Service",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{appointment_url}}/actuator/health", "host": ["{{appointment_url}}"], "path": ["actuator", "health"] }
+          }
+        },
+        {
+          "name": "Liveness — Appointment Service",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{appointment_url}}/actuator/health/liveness", "host": ["{{appointment_url}}"], "path": ["actuator", "health", "liveness"] }
+          }
+        },
+        {
+          "name": "Readiness — Appointment Service",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{appointment_url}}/actuator/health/readiness", "host": ["{{appointment_url}}"], "path": ["actuator", "health", "readiness"] }
+          }
+        }
+      ]
+    }
+  ]
+}

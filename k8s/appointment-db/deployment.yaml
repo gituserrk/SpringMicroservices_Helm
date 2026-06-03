@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: appointment-db
+  namespace: healthcare
+  labels:
+    app: appointment-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: appointment-db
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: appointment-db
+    spec:
+      containers:
+        - name: appointment-db
+          image: mysql:8.0
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: appointment-db-secret
+                  key: mysql-root-password
+            - name: MYSQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: appointment-db-secret
+                  key: mysql-database
+          volumeMounts:
+            - name: appointment-db-storage
+              mountPath: /var/lib/mysql
+          readinessProbe:
+            exec:
+              command: ["mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 6
+          livenessProbe:
+            exec:
+              command: ["mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+            initialDelaySeconds: 60
+            periodSeconds: 20
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+      volumes:
+        - name: appointment-db-storage
+          persistentVolumeClaim:
+            claimName: appointment-db-pvc

@@ -1,0 +1,98 @@
+version: '3.8'
+
+# Healthcare Microservices — local Docker Compose stack
+# Starts: patient-db, appointment-db, patient-service, appointment-service
+#
+# Usage:
+#   docker compose up --build          # build images and start all services
+#   docker compose up -d               # start in detached mode (after first build)
+#   docker compose down -v             # stop and remove volumes
+#   docker compose logs -f patient-service
+
+services:
+
+  # ── Patient MySQL ──────────────────────────────────────────────────────────
+  patient-db:
+    image: mysql:8.0
+    container_name: patient-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: patient_db
+    ports:
+      - "3307:3306"        # exposed on 3307 to avoid conflicts with a local MySQL
+    volumes:
+      - patient-db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # ── Appointment MySQL ──────────────────────────────────────────────────────
+  appointment-db:
+    image: mysql:8.0
+    container_name: appointment-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: appointment_db
+    ports:
+      - "3308:3306"        # exposed on 3308 to avoid conflicts
+    volumes:
+      - appointment-db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # ── Patient Service ────────────────────────────────────────────────────────
+  patient-service:
+    build:
+      context: .                              # root — Dockerfile copies sub-module sources
+      dockerfile: patient-service/Dockerfile
+    container_name: patient-service
+    environment:
+      DB_HOST: patient-db
+      DB_PORT: 3306
+      DB_NAME: patient_db
+      DB_USER: root
+      DB_PASSWORD: root
+    ports:
+      - "8080:8080"
+    depends_on:
+      patient-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
+  # ── Appointment Service ────────────────────────────────────────────────────
+  appointment-service:
+    build:
+      context: .
+      dockerfile: appointment-service/Dockerfile
+    container_name: appointment-service
+    environment:
+      DB_HOST: appointment-db
+      DB_PORT: 3306
+      DB_NAME: appointment_db
+      DB_USER: root
+      DB_PASSWORD: root
+      # Override the default Kubernetes DNS name with the Docker Compose service name
+      PATIENT_SERVICE_URL: http://patient-service:8080
+    ports:
+      - "8081:8081"
+    depends_on:
+      appointment-db:
+        condition: service_healthy
+      patient-service:
+        condition: service_healthy
+
+volumes:
+  patient-db-data:
+  appointment-db-data:

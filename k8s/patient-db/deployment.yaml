@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: patient-db
+  namespace: healthcare
+  labels:
+    app: patient-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: patient-db
+  strategy:
+    type: Recreate   # Required for single-replica stateful workloads with RWO PVC
+  template:
+    metadata:
+      labels:
+        app: patient-db
+    spec:
+      containers:
+        - name: patient-db
+          image: mysql:8.0
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: patient-db-secret
+                  key: mysql-root-password
+            - name: MYSQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: patient-db-secret
+                  key: mysql-database
+          volumeMounts:
+            - name: patient-db-storage
+              mountPath: /var/lib/mysql
+          readinessProbe:
+            exec:
+              command: ["mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 6
+          livenessProbe:
+            exec:
+              command: ["mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+            initialDelaySeconds: 60
+            periodSeconds: 20
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+      volumes:
+        - name: patient-db-storage
+          persistentVolumeClaim:
+            claimName: patient-db-pvc

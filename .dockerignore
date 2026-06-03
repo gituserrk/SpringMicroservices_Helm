@@ -1,0 +1,28 @@
+# Exclude build output — JAR is built inside Docker, not on the host
+**/target/
+
+# Version control
+.git/
+.gitignore
+.gitattributes
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+
+# Documentation
+**/*.md
+CLAUDE.md
+
+# Kubernetes and Helm manifests — not needed in the image
+k8s/
+helm/
+
+# Maven wrapper (we use the Maven base image instead)
+.mvn/
+mvnw
+mvnw.cmd
+
+# Test resources and reports
+**/src/test/
