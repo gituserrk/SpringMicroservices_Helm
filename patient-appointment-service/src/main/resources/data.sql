@@ -1,4 +1,4 @@
-INSERT IGNORE INTO appointments (id, patient_id, doctor_name, appointment_date, status, created_at, updated_at)
+INSERT INTO appointments (id, patient_id, doctor_name, appointment_date, status, created_at, updated_at)
 VALUES
   (1, 1, 'Dr. Smith',   '2026-07-10', 'BOOKED',    NOW(), NOW()),
   (2, 2, 'Dr. Patel',   '2026-07-12', 'BOOKED',    NOW(), NOW()),
