@@ -1,4 +1,4 @@
-﻿version: '3.8'
+version: '3.8'
 
 # Healthcare Microservices — local Docker Compose stack
 # Starts: patient-db, appointment-db, patient-core-service, patient-patient-appointment-service
@@ -72,11 +72,11 @@ services:
       start_period: 60s
 
   # ── Appointment Service ────────────────────────────────────────────────────
-  patient-patient-appointment-service:
+  patient-appointment-service:
     build:
       context: .
-      dockerfile: patient-patient-appointment-service/Dockerfile
-    container_name: patient-patient-appointment-service
+      dockerfile: patient-appointment-service/Dockerfile
+    container_name: patient-appointment-service
     environment:
       DB_HOST: appointment-db
       DB_PORT: 3306

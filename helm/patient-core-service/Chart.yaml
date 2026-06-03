@@ -1,4 +1,4 @@
-﻿apiVersion: v2
+apiVersion: v2
 name: patient-core-service
 description: Helm chart for PatientCore Service — deploys the Spring Boot app and its MySQL database
 type: application

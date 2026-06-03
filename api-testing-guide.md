@@ -1,4 +1,4 @@
-﻿# API Testing Guide — Healthcare Microservices Demo
+# API Testing Guide — Healthcare Microservices Demo
 
 ## Base URLs
 

@@ -1,4 +1,4 @@
-﻿# CREATE Prompt – Healthcare Microservices with Spring Boot, Kubernetes, and Helm
+# CREATE Prompt – Healthcare Microservices with Spring Boot, Kubernetes, and Helm
 
 ## C – Context
 

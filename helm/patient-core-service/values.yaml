@@ -1,4 +1,4 @@
-﻿# PatientCore Service — Helm values
+# PatientCore Service — Helm values
 # Override any value with: helm install ... --set key=value
 # or: helm install ... -f custom-values.yaml
 

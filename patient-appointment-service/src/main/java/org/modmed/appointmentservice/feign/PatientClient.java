@@ -1,4 +1,4 @@
-﻿package org.modmed.appointmentservice.feign;
+package org.modmed.appointmentservice.feign;
 
 import org.modmed.appointmentservice.dto.PatientDTO;
 import org.springframework.cloud.openfeign.FeignClient;

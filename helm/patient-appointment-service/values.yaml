@@ -1,4 +1,4 @@
-﻿# Appointment Service — Helm values
+# Appointment Service — Helm values
 # Override any value with: helm install ... --set key=value
 # or: helm install ... -f custom-values.yaml
 

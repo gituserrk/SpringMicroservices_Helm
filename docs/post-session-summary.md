@@ -1,4 +1,4 @@
-﻿# TT6 — Post-Session Summary
+# TT6 — Post-Session Summary
 ### Healthcare Microservices with Spring Boot, Kubernetes & Helm
 
 ---

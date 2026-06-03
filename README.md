@@ -1,4 +1,4 @@
-﻿# SpringMicroservices_Helm
+# SpringMicroservices_Helm
 ### Healthcare Microservices Demo — Spring Boot · MySQL · Docker · Kubernetes · Helm
 
 ---

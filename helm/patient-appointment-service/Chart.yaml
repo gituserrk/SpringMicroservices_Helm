@@ -1,4 +1,4 @@
-﻿apiVersion: v2
+apiVersion: v2
 name: patient-appointment-service
 description: Helm chart for Appointment Service — deploys the Spring Boot app, its MySQL database, and wires the Feign call to PatientCore Service
 type: application

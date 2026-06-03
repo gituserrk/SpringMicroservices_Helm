@@ -1,4 +1,4 @@
-﻿# Docker Compose vs Kubernetes — What's the Difference?
+# Docker Compose vs Kubernetes — What's the Difference?
 
 A quick reference for understanding when to use each and how they relate to this project.
 
